@@ -99,11 +99,14 @@
                         <option value="5">90+</option>
                     </select>
                 </div>
+            </div> <!-- Closes rangeBpGroup -->
+
+            <!-- Pulse is now safely outside the sub-groups, but inside the main section -->
+            <div class="form-group" style="margin-top: 15px;">
+                <label for="pulse">Typical resting pulse (BPM):</label>
+                <input type="number" id="pulse" placeholder="e.g., 70">
             </div>
-        <div class="form-group">
-            <label for="pulse">Typical resting pulse (BPM):</label>
-            <input type="number" id="pulse" placeholder="e.g., 70">
-        </div>
+        </div> <!-- Closes main section -->
 
         <!-- SECTION 3: Sleep & Symptoms -->
         <div class="section">
