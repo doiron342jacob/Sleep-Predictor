@@ -282,28 +282,33 @@
         // 7. BUILD FEATURE ARRAY 
         // ⚠️ NOTE: Make sure this order strictly matches the column order (model.feature_names_in_) 
         // from your trained Python model!
-        const features = [
-            bmiVal,
-            mapVal,
-            breathingVal,
-            bedtimeVal,
-            whiteVal,
-            otherVal,
-            sleepyVal,
-            sittingVal,
-            isNaN(hoursSlept) ? 0 : hoursSlept, // Fallback placeholder if missing, or use NaN depending on model
-            isNaN(age) ? 0 : age,
-            tobacco,
-            pulse,
-            gender,
-            diabetesRisk,
-            diabetesFeel
+		const features = [
+            sleepyVal,                          // 0: DAYS_SLEEPY
+            isNaN(age) ? 0 : age,               // 1: AGE
+            breathingVal,                       // 2: NOT_BREATHING
+            whiteVal,                           // 3: WHITE
+            bmiVal,                             // 4: BMI
+            mapVal,                             // 5: MAP_AVG
+            bedtimeVal,                         // 6: BEDTIME
+            tobacco,                            // 7: TOBACCO
+            pulse,                              // 8: PULSE
+            isNaN(hoursSlept) ? 0 : hoursSlept, // 9: HOURS_SLEPT
+            sittingVal,                         // 10: SEDENTARY
+            gender,                             // 11: GENDER
+            diabetesRisk,                       // 12: DIABETES_RISK
+            diabetesFeel,                       // 13: DIABETES_FEEL
+            otherVal                            // 14: OTHER
         ];
 
-	try {
-	    // Run prediction via model.js
- 	   const prediction = score(features);
- 	   let risk_prob = Array.isArray(prediction) ? prediction[1] : prediction;
+        // ADD THESE TWO LINES FOR DEBUGGING:
+        console.log("Features sent to model.js:", features);
+
+        try {
+            const prediction = score(features);
+            console.log("Raw model.js output:", prediction); // ADD THIS TOO
+
+            let risk_prob = Array.isArray(prediction) ? prediction[1] : prediction;
+            // ... rest of your code ...
 
  	   // 1. Your specific calibration bounds from Colab
   	  const min_val = 0.138127; 
