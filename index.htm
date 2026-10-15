@@ -5,6 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sleep Disorder Risk Assessment Tool</title>
     <style>
+		.disclaimer {
+		    background-color: #fff3cd;
+		    color: #856404;
+		    border: 1px solid #ffeeba;
+		    padding: 12px 15px;
+		    border-radius: 4px;
+		    font-size: 13.5px;
+		    margin-bottom: 20px;
+		    line-height: 1.4;
+		}
         body { font-family: Arial, sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; }
         .container { max-width: 700px; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin: auto; }
         h2, h3 { color: #333; text-align: center; }
@@ -24,7 +34,9 @@
 <div class="container">
     <h2>Patient Risk Assessment Tool</h2>
     <p style="text-align: center; color: #666;">Please fill out the details below. Leave blank if unknown.</p>
-    
+    <div class="disclaimer">
+    	<strong>Disclaimer:</strong> This tool is for educational and informational purposes only and does not constitute medical advice. Leaving fields blank or providing incomplete information may result in skewed or inaccurate predictions. Always consult a qualified physician or healthcare professional regarding any health concerns or before making medical decisions.
+	</div>
     <form id="assessmentForm">
 
         <!-- SECTION 1: BMI -->
