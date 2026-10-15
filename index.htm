@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sleep Disorder Risk Assessment Tool</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; }
+        .container { max-width: 700px; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin: auto; }
+        h2, h3 { color: #333; text-align: center; }
+        .section { margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid #eee; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        .sub-group { margin-left: 20px; padding-left: 10px; border-left: 3px solid #4CAF50; margin-top: 10px; display: none; }
+        button { width: 100%; background-color: #4CAF50; color: white; padding: 12px; border: none; border-radius: 4px; font-size: 16px; cursor: pointer; }
+        button:hover { background-color: #45a049; }
+        #result { margin-top: 20px; padding: 20px; border-radius: 4px; text-align: center; font-weight: bold; display: none; font-size: 18px; }
+        .risk-box { background-color: #e9ecef; color: #333; border: 1px solid #ced4da; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Patient Risk Assessment Tool</h2>
+    <p style="text-align: center; color: #666;">Please fill out the details below. Leave blank if unknown.</p>
+    
+    <form id="assessmentForm">
+
+        <!-- SECTION 1: BMI -->
+        <div class="section">
+            <h3>Body Metrics</h3>
+            <div class="form-group">
+                <label for="height">Height (in inches):</label>
+                <input type="number" id="height" step="0.1" placeholder="e.g., 70">
+            </div>
+            <div class="form-group">
+                <label for="weight">Weight (in pounds):</label>
+                <input type="number" id="weight" step="0.1" placeholder="e.g., 180">
+            </div>
+        </div>
+
+        <!-- SECTION 2: Blood Pressure & MAP -->
+        <div class="section">
+            <h3>Blood Pressure</h3>
+            <div class="form-group">
+                <label>Do you know your usual blood pressure?</label>
+                <select id="knownBp" onchange="toggleBpInputs()">
+                    <option value="1">Yes, I know exact numbers</option>
+                    <option value="2" selected>No / Prefer ranges</option>
+                </select>
+            </div>
+
+            <!-- Exact BP inputs -->
+            <div id="exactBpGroup" class="sub-group">
+                <div class="form-group">
+                    <label for="systolicExact">Systolic (mmHg):</label>
+                    <input type="number" id="systolicExact" placeholder="e.g., 120">
+                </div>
+                <div class="form-group">
+                    <label for="diastolicExact">Diastolic (mmHg):</label>
+                    <input type="number" id="diastolicExact" placeholder="e.g., 80">
+                </div>
+            </div>
+
+            <!-- Range BP inputs -->
+            <div id="rangeBpGroup" class="sub-group" style="display: block;">
+                <div class="form-group">
+                    <label for="sysChoice">Systolic Range (Top Number):</label>
+                    <select id="sysChoice">
+                        <option value="">-- Select Option --</option>
+                        <option value="1">Below 90</option>
+                        <option value="2">90-109</option>
+                        <option value="3">110-129</option>
+                        <option value="4">130-149</option>
+                        <option value="5">150+</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="diaChoice">Diastolic Range (Bottom Number):</label>
+                    <select id="diaChoice">
+                        <option value="">-- Select Option --</option>
+                        <option value="1">Below 60</option>
+                        <option value="2">60-69</option>
+                        <option value="3">70-79</option>
+                        <option value="4">80-89</option>
+                        <option value="5">90+</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 3: Sleep & Symptoms -->
+        <div class="section">
+            <h3>Sleep Quality & Symptoms</h3>
+            <div class="form-group">
+                <label for="stopBreathe">About how many nights per week do you stop breathing?</label>
+                <input type="number" id="stopBreathe" min="0" max="7" placeholder="0 - 7">
+            </div>
+
+            <div class="form-group">
+                <label for="sleepyInput">Overly sleepy days per month:</label>
+                <select id="sleepyInput">
+                    <option value="">-- Select Option --</option>
+                    <option value="0">Never (0)</option>
+                    <option value="1">1 Day per Month</option>
+                    <option value="2">2-4 Days per Month</option>
+                    <option value="3">5-15 Days per Month</option>
+                    <option value="4">16-30 Days per Month</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="bedtime">Bedtime (HH:MM):</label>
+                <input type="time" id="bedtime">
+            </div>
+
+            <div class="form-group">
+                <label for="hoursSlept">Hours of sleep per night:</label>
+                <input type="number" id="hoursSlept" step="0.5" placeholder="e.g., 7.5">
+            </div>
+        </div>
+
+        <!-- SECTION 4: Demographics & Lifestyle -->
+        <div class="section">
+            <h3>Demographics & Lifestyle</h3>
+            <div class="form-group">
+                <label for="age">Age:</label>
+                <input type="number" id="age" placeholder="e.g., 45">
+            </div>
+
+            <div class="form-group">
+                <label for="gender">Sex:</label>
+                <select id="gender">
+                    <option value="">-- Select --</option>
+                    <option value="1">Male</option>
+                    <option value="0">Female</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="ethnicity">Ethnicity:</label>
+                <select id="ethnicity">
+                    <option value="">-- Select --</option>
+                    <option value="Hispanic">Hispanic</option>
+                    <option value="White">White</option>
+                    <option value="Black">Black</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="sittingHours">Hours spent sitting per day:</label>
+                <input type="number" id="sittingHours" step="0.5" placeholder="e.g., 6">
+            </div>
+
+            <div class="form-group">
+                <label for="tobacco">Tobacco use (or lived with tobacco user)?</label>
+                <select id="tobacco">
+                    <option value="">-- Select --</option>
+                    <option value="1">Yes</option>
+                    <option value="0">No</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="pulse">Typical resting pulse (BPM):</label>
+                <input type="number" id="pulse" placeholder="e.g., 70">
+            </div>
+
+            <div class="form-group">
+                <label for="diabetesRisk">Doctor stated risk for diabetes?</label>
+                <select id="diabetesRisk">
+                    <option value="">-- Select --</option>
+                    <option value="1">Yes</option>
+                    <option value="0">No</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="diabetesFeel">Do you feel you could be at risk for diabetes?</label>
+                <select id="diabetesFeel">
+                    <option value="">-- Select --</option>
+                    <option value="1">Yes</option>
+                    <option value="0">No</option>
+                </select>
+            </div>
+        </div>
+
+        <button type="button" onclick="runAssessment()">Calculate Risk Assessment</button>
+    </form>
+
+    <div id="result" class="risk-box"></div>
+</div>
+
+<!-- Load your exported model from Colab -->
+<script src="model.js"></script>
+
+<script>
+    function toggleBpInputs() {
+        const known = document.getElementById('knownBp').value;
+        if (known === '1') {
+            document.getElementById('exactBpGroup').style.display = 'block';
+            document.getElementById('rangeBpGroup').style.display = 'none';
+        } else {
+            document.getElementById('exactBpGroup').style.display = 'none';
+            document.getElementById('rangeBpGroup').style.display = 'block';
+        }
+    }
+
+    function runAssessment() {
+        // 1. BMI Calculation
+        let height = parseFloat(document.getElementById('height').value);
+        let weight = parseFloat(document.getElementById('weight').value);
+        let bmiVal = (!isNaN(height) && !isNaN(weight) && height > 0) ? parseFloat(((weight / (height ** 2)) * 703).toFixed(1)) : NaN;
+
+        // 2. Blood Pressure / MAP Calculation
+        let systolic = NaN, diastolic = NaN;
+        const knownBp = document.getElementById('knownBp').value;
+        
+        if (knownBp === '1') {
+            systolic = parseFloat(document.getElementById('systolicExact').value);
+            diastolic = parseFloat(document.getElementById('diastolicExact').value);
+        } else {
+            const sysMap = { '1': 85.0, '2': 99.5, '3': 119.5, '4': 139.5, '5': 155.0 };
+            const diaMap = { '1': 55.0, '2': 64.5, '3': 74.5, '4': 84.5, '5': 95.0 };
+            
+            let sysChoice = document.getElementById('sysChoice').value;
+            let diaChoice = document.getElementById('diaChoice').value;
+            
+            if (sysChoice in sysMap) systolic = sysMap[sysChoice];
+            if (diaChoice in diaMap) diastolic = diaMap[diaChoice];
+        }
+
+        let mapVal = (!isNaN(systolic) && !isNaN(diastolic)) ? (systolic + (diastolic * 2)) / 3.0 : NaN;
+
+        // 3. Not Breathing Conversion
+        let stopBreathe = parseInt(document.getElementById('stopBreathe').value);
+        let breathingVal = isNaN(stopBreathe) ? NaN : (stopBreathe <= 2 ? 0 : 1);
+
+        // 4. Bedtime to Minutes Past Midnight
+        let bedtimeStr = document.getElementById('bedtime').value;
+        let bedtimeVal = NaN;
+        if (bedtimeStr) {
+            let parts = bedtimeStr.split(':');
+            let hours = parseInt(parts[0]);
+            let mins = parseInt(parts[1]);
+            bedtimeVal = (hours * 60) + mins;
+        }
+
+        // 5. Ethnicity Encoding
+        let ethnicity = document.getElementById('ethnicity').value;
+        let whiteVal = 0, otherVal = 0;
+        if (ethnicity === 'White') { whiteVal = 1; otherVal = 0; }
+        else if (ethnicity === 'Other') { whiteVal = 0; otherVal = 1; }
+
+        // 6. Remaining variables
+        let sleepyVal = document.getElementById('sleepyInput').value !== "" ? parseInt(document.getElementById('sleepyInput').value) : NaN;
+        let sittingHours = parseFloat(document.getElementById('sittingHours').value);
+        let sittingVal = !isNaN(sittingHours) ? sittingHours * 60 : NaN;
+
+        let hoursSlept = parseFloat(document.getElementById('hoursSlept').value);
+        let age = parseFloat(document.getElementById('age').value);
+        let tobacco = document.getElementById('tobacco').value !== "" ? parseInt(document.getElementById('tobacco').value) : NaN;
+        let pulse = parseFloat(document.getElementById('pulse').value);
+        let gender = document.getElementById('gender').value !== "" ? parseInt(document.getElementById('gender').value) : NaN;
+        let diabetesRisk = document.getElementById('diabetesRisk').value !== "" ? parseInt(document.getElementById('diabetesRisk').value) : NaN;
+        let diabetesFeel = document.getElementById('diabetesFeel').value !== "" ? parseInt(document.getElementById('diabetesFeel').value) : NaN;
+
+        // 7. BUILD FEATURE ARRAY 
+        // ⚠️ NOTE: Make sure this order strictly matches the column order (model.feature_names_in_) 
+        // from your trained Python model!
+        const features = [
+            bmiVal,
+            mapVal,
+            breathingVal,
+            bedtimeVal,
+            whiteVal,
+            otherVal,
+            sleepyVal,
+            sittingVal,
+            isNaN(hoursSlept) ? 0 : hoursSlept, // Fallback placeholder if missing, or use NaN depending on model
+            isNaN(age) ? 0 : age,
+            tobacco,
+            pulse,
+            gender,
+            diabetesRisk,
+            diabetesFeel
+        ];
+
+	try {
+	    // Run prediction via model.js
+ 	   const prediction = score(features);
+ 	   let risk_prob = Array.isArray(prediction) ? prediction[1] : prediction;
+
+ 	   // 1. Your specific calibration bounds from Colab
+  	  const min_val = 0.138127; 
+  	  const max_val = 0.814293; 
+	
+   	 // 2. Calibrate and clip the probability (matches your Python formula)
+ 	   let risk_prob_calibrated = (risk_prob - min_val) / (max_val - min_val);
+  	  if (risk_prob_calibrated < 0) risk_prob_calibrated = 0;
+  	  if (risk_prob_calibrated > 1) risk_prob_calibrated = 1;
+	
+  	  // 3. Define Bins and Labels (matches your Python pd.cut setup)
+  	  const bins = [0, 0.10, 0.30, 0.48, 0.55, 0.65, 0.85, 1.0];
+  	  const labels = [
+  	      'Very Unlikely',
+  	      'Unlikely',
+  	      'Low Priority',
+  	      'Moderate Priority',
+ 	       'High Priority',
+  	      'Likely',
+ 	       'Very Likely'
+ 	   ];
+
+  	  // 4. Custom JS function to replicate pd.cut(..., include_lowest=True)
+  	  function pdCut(val, bins, labels) {
+  	      if (val === bins[0]) return labels[0];
+   	     
+   	     for (let i = 0; i < bins.length - 1; i++) {
+   	         let lower = bins[i];
+        	    let upper = bins[i + 1];
+  	          let isLast = (i === bins.length - 2);
+  	          
+  	          if (isLast ? (val >= lower && val <= upper) : (val >= lower && val < upper)) {
+  	              return labels[i];
+ 	           }
+  	      }
+ 	       return labels[labels.length - 1];
+ 	   }
+
+  	  let risk_bin = pdCut(risk_prob_calibrated, bins, labels);
+ 	   let percentage = (risk_prob_calibrated * 100).toFixed(1);
+	
+ 	   // 5. Display Results on the HTML Page
+ 	   const resultDiv = document.getElementById('result');
+ 	   resultDiv.style.display = 'block';
+ 	   resultDiv.innerHTML = `
+ 	       Predicted Risk Probability: ${percentage}%<br>
+  	      Assigned Risk Category: <strong>${risk_bin}</strong>
+ 	   `;
+
+	} catch (error) {
+ 	   alert("Error computing prediction. Please check your inputs.");
+ 	   console.error(error);
+	}
+    }
+</script>
+
+</body>
+</html>
