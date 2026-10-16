@@ -353,7 +353,8 @@
             `;
 
         } catch (error) {
-            alert("Error computing prediction. Please check your inputs.");
+            // This will pop up the EXACT error message instead of a generic one
+            alert("Debug Error: " + error.message + " | Stack: " + error.stack);
             console.error(error);
         }
     }
