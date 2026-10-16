@@ -222,10 +222,10 @@
     }
 
     function runAssessment() {
-        // 1. BMI Calculation
-        let height = parseFloat(document.getElementById('height').value);
-        let weight = parseFloat(document.getElementById('weight').value);
-        let bmiVal = (!isNaN(height) && !isNaN(weight) && height > 0) ? parseFloat(((weight / (height ** 2)) * 703).toFixed(1)) : NaN;
+        // 1. BMI Calculation (Using unique local names to avoid Safari ID collisions)
+        let inputHeight = parseFloat(document.getElementById('height').value);
+        let inputWeight = parseFloat(document.getElementById('weight').value);
+        let bmiVal = (!isNaN(inputHeight) && !isNaN(inputWeight) && inputHeight > 0) ? parseFloat(((inputWeight / (inputHeight ** 2)) * 703).toFixed(1)) : NaN;
 
         // 2. Blood Pressure / MAP Calculation
         let systolic = NaN, diastolic = NaN;
@@ -262,107 +262,100 @@
         }
 
         // 5. Ethnicity Encoding
-        let ethnicity = document.getElementById('ethnicity').value;
+        let inputEthnicity = document.getElementById('ethnicity').value;
         let whiteVal = 0, otherVal = 0;
-        if (ethnicity === 'White') { whiteVal = 1; otherVal = 0; }
-        else if (ethnicity === 'Other') { whiteVal = 0; otherVal = 1; }
+        if (inputEthnicity === 'White') { whiteVal = 1; otherVal = 0; }
+        else if (inputEthnicity === 'Other') { whiteVal = 0; otherVal = 1; }
 
-        // 6. Remaining variables
+        // 6. Remaining variables (renamed to prevent Safari global ID shadowing)
         let sleepyVal = document.getElementById('sleepyInput').value !== "" ? parseInt(document.getElementById('sleepyInput').value) : NaN;
         let sittingHours = parseFloat(document.getElementById('sittingHours').value);
         let sittingVal = !isNaN(sittingHours) ? sittingHours * 60 : NaN;
 
         let hoursSlept = parseFloat(document.getElementById('hoursSlept').value);
-        let age = parseFloat(document.getElementById('age').value);
-        let tobacco = document.getElementById('tobacco').value !== "" ? parseInt(document.getElementById('tobacco').value) : NaN;
-        let pulse = parseFloat(document.getElementById('pulse').value);
-        let gender = document.getElementById('gender').value !== "" ? parseInt(document.getElementById('gender').value) : NaN;
+        let inputAge = parseFloat(document.getElementById('age').value);
+        let inputTobacco = document.getElementById('tobacco').value !== "" ? parseInt(document.getElementById('tobacco').value) : NaN;
+        let inputPulse = parseFloat(document.getElementById('pulse').value);
+        let inputGender = document.getElementById('gender').value !== "" ? parseInt(document.getElementById('gender').value) : NaN;
         let diabetesRisk = document.getElementById('diabetesRisk').value !== "" ? parseInt(document.getElementById('diabetesRisk').value) : NaN;
         let diabetesFeel = document.getElementById('diabetesFeel').value !== "" ? parseInt(document.getElementById('diabetesFeel').value) : NaN;
 
-        // 7. BUILD FEATURE ARRAY 
-        // ⚠️ NOTE: Make sure this order strictly matches the column order (model.feature_names_in_) 
-        // from your trained Python model!
-		const features = [
+        // 7. BUILD FEATURE ARRAY (Strictly matched to Python's feature_names_in_)
+        const features = [
             sleepyVal,                          // 0: DAYS_SLEEPY
-            isNaN(age) ? 0 : age,               // 1: AGE
+            isNaN(inputAge) ? 0 : inputAge,     // 1: AGE
             breathingVal,                       // 2: NOT_BREATHING
             whiteVal,                           // 3: WHITE
             bmiVal,                             // 4: BMI
             mapVal,                             // 5: MAP_AVG
             bedtimeVal,                         // 6: BEDTIME
-            tobacco,                            // 7: TOBACCO
-            pulse,                              // 8: PULSE
+            inputTobacco,                       // 7: TOBACCO
+            inputPulse,                         // 8: PULSE
             isNaN(hoursSlept) ? 0 : hoursSlept, // 9: HOURS_SLEPT
             sittingVal,                         // 10: SEDENTARY
-            gender,                             // 11: GENDER
+            inputGender,                        // 11: GENDER
             diabetesRisk,                       // 12: DIABETES_RISK
             diabetesFeel,                       // 13: DIABETES_FEEL
             otherVal                            // 14: OTHER
         ];
 
-        // ADD THESE TWO LINES FOR DEBUGGING:
-        console.log("Features sent to model.js:", features);
-
         try {
+            // Run prediction via model.js
             const prediction = score(features);
-            console.log("Raw model.js output:", prediction); // ADD THIS TOO
-
             let risk_prob = Array.isArray(prediction) ? prediction[1] : prediction;
-            // ... rest of your code ...
 
- 	   // 1. Your specific calibration bounds from Colab
-  	  const min_val = 0.138127; 
-  	  const max_val = 0.814293; 
-	
-   	 // 2. Calibrate and clip the probability (matches your Python formula)
- 	   let risk_prob_calibrated = (risk_prob - min_val) / (max_val - min_val);
-  	  if (risk_prob_calibrated < 0) risk_prob_calibrated = 0;
-  	  if (risk_prob_calibrated > 1) risk_prob_calibrated = 1;
-	
-  	  // 3. Define Bins and Labels (matches your Python pd.cut setup)
-  	  const bins = [0, 0.10, 0.30, 0.48, 0.55, 0.65, 0.85, 1.0];
-  	  const labels = [
-  	      'Very Unlikely',
-  	      'Unlikely',
-  	      'Low Priority',
-  	      'Moderate Priority',
- 	       'High Priority',
-  	      'Likely',
- 	       'Very Likely'
- 	   ];
+            // 1. Your specific calibration bounds from Colab
+            const min_val = 0.138127; 
+            const max_val = 0.814293; 
 
-  	  // 4. Custom JS function to replicate pd.cut(..., include_lowest=True)
-  	  function pdCut(val, bins, labels) {
-  	      if (val === bins[0]) return labels[0];
-   	     
-   	     for (let i = 0; i < bins.length - 1; i++) {
-   	         let lower = bins[i];
-        	    let upper = bins[i + 1];
-  	          let isLast = (i === bins.length - 2);
-  	          
-  	          if (isLast ? (val >= lower && val <= upper) : (val >= lower && val < upper)) {
-  	              return labels[i];
- 	           }
-  	      }
- 	       return labels[labels.length - 1];
- 	   }
+            // 2. Calibrate and clip the probability
+            let risk_prob_calibrated = (risk_prob - min_val) / (max_val - min_val);
+            if (risk_prob_calibrated < 0) risk_prob_calibrated = 0;
+            if (risk_prob_calibrated > 1) risk_prob_calibrated = 1;
 
-  	  let risk_bin = pdCut(risk_prob_calibrated, bins, labels);
- 	   let percentage = (risk_prob_calibrated * 100).toFixed(1);
-	
- 	   // 5. Display Results on the HTML Page
- 	   const resultDiv = document.getElementById('result');
- 	   resultDiv.style.display = 'block';
- 	   resultDiv.innerHTML = `
- 	       Predicted Risk Probability: ${percentage}%<br>
-  	      Assigned Risk Category: <strong>${risk_bin}</strong>
- 	   `;
+            // 3. Define Bins and Labels
+            const bins = [0, 0.10, 0.30, 0.48, 0.55, 0.65, 0.85, 1.0];
+            const labels = [
+                'Very Unlikely',
+                'Unlikely',
+                'Low Priority',
+                'Moderate Priority',
+                'High Priority',
+                'Likely',
+                'Very Likely'
+            ];
 
-	} catch (error) {
- 	   alert("Error computing prediction. Please check your inputs.");
- 	   console.error(error);
-	}
+            // 4. Custom JS function to replicate pd.cut(..., include_lowest=True)
+            function pdCut(val, bins, labels) {
+                if (val === bins[0]) return labels[0];
+                
+                for (let i = 0; i < bins.length - 1; i++) {
+                    let lower = bins[i];
+                    let upper = bins[i + 1];
+                    let isLast = (i === bins.length - 2);
+                    
+                    if (isLast ? (val >= lower && val <= upper) : (val >= lower && val < upper)) {
+                        return labels[i];
+                    }
+                }
+                return labels[labels.length - 1];
+            }
+
+            let risk_bin = pdCut(risk_prob_calibrated, bins, labels);
+            let percentage = (risk_prob_calibrated * 100).toFixed(1);
+
+            // 5. Display Results on the HTML Page
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = `
+                Predicted Risk Probability: ${percentage}%<br>
+                Assigned Risk Category: <strong>${risk_bin}</strong>
+            `;
+
+        } catch (error) {
+            alert("Error computing prediction. Please check your inputs.");
+            console.error(error);
+        }
     }
 </script>
 
