@@ -207,7 +207,7 @@
 </div>
 
 <!-- Load your exported model from Colab -->
-<script src="model.js?v=3"></script>
+<script src="model.js?v=2"></script>
 
 <script>
     function toggleBpInputs() {
@@ -353,8 +353,7 @@
             `;
 
         } catch (error) {
-            // This will pop up the EXACT error message instead of a generic one
-            alert("Debug Error: " + error.message + " | Stack: " + error.stack);
+            alert("Error computing prediction. Please check your inputs.");
             console.error(error);
         }
     }
