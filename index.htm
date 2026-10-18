@@ -305,8 +305,8 @@
             let risk_prob = Array.isArray(prediction) ? prediction[1] : prediction;
 
             // 1. Your specific calibration bounds from Colab
-            const min_val = 0.138127; 
-            const max_val = 0.814293; 
+            const min_val = 0.144592; 
+            const max_val = 0.787712; 
 
             // 2. Calibrate and clip the probability
             let risk_prob_calibrated = (risk_prob - min_val) / (max_val - min_val);
